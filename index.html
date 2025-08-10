@@ -2,135 +2,152 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Airport Departure Time Calculator</title>
+  <title>When Should You Leave for the Airport?</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 2rem;
-    }
-    label {
-      display: block;
-      margin: 10px 0 5px;
-      font-weight: bold;
-    }
-    select, input {
-      width: 300px;
-      padding: 5px;
-    }
-    .output {
-      margin-top: 20px;
-      padding: 10px;
-      border: 2px solid #ccc;
-      background: #f8f8f8;
-    }
-    button {
-      margin-top: 20px;
-      padding: 10px 15px;
-      font-size: 16px;
-    }
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    th, td { padding: 8px; border: 1px solid #ddd; }
+    th { background-color: #f8f8f8; text-align: left; }
+    input[type="text"], select { width: 100%; box-sizing: border-box; }
+    .gold { background-color: #fffae6; }
+    .result { font-weight: bold; font-size: 1.2em; }
   </style>
 </head>
 <body>
-
   <h1>When Should You Leave for the Airport?</h1>
+  <p>Fill out all cells in gold shading; the calculator will handle the rest. Note: aggressive settings may carry a small risk of missing your flight.</p>
+  <table>
+    <tr><th colspan="2">Flight Departure</th><th>Time / Choice</th><th>Adjustment</th></tr>
+    <tr>
+      <td colspan="2">What time does your flight depart?</td>
+      <td class="gold"><input type="time" id="flightTime" value="10:00"></td>
+      <td>60 min baseline</td>
+    </tr>
 
-  <label>Flight Departure Time:</label>
-  <input type="time" id="flightTime" value="10:00">
+    <tr><th colspan="2">Commute</th><th>Your input</th><th>Minutes added/subtracted</th></tr>
+    <tr>
+      <td colspan="2">Estimated commute time to airport (minutes)</td>
+      <td class="gold"><input type="number" id="commuteTime" value="30"></td>
+      <td><span id="adjCommute">+30</span></td>
+    </tr>
+    <tr>
+      <td colspan="2">If taking public transit, how reliable is the service?</td>
+      <td class="gold">
+        <select id="transitReliability">
+          <option>Not taking transit</option>
+          <option>On time</option>
+          <option>Sometimes delayed</option>
+          <option>Often delayed</option>
+        </select>
+      </td>
+      <td><span id="adjTransit">+0</span></td>
+    </tr>
+    <tr>
+      <td colspan="2">If driving, how heavy is traffic at this time of day?</td>
+      <td class="gold">
+        <select id="trafficLevel">
+          <option>Light</option>
+          <option>Medium</option>
+          <option>Medium‑heavy</option>
+          <option>Heavy</option>
+        </select>
+      </td>
+      <td><span id="adjTraffic">+0</span></td>
+    </tr>
+    <tr>
+      <td colspan="2">Need to park or return a rental car?</td>
+      <td class="gold">
+        <select id="parkReturn">
+          <option>No</option>
+          <option>Yes</option>
+        </select>
+      </td>
+      <td><span id="adjParking">+0</span></td>
+    </tr>
 
-  <label>Commute time to airport (in minutes):</label>
-  <input type="number" id="commuteTime" value="30">
+    <tr><th colspan="2">Basics</th><th></th><th></th></tr>
+    <tr>
+      <td colspan="2">Departure airport</td>
+      <td class="gold"><input type="text" id="airport" value="LGA (LaGuardia)"></td>
+      <td><span id="adjAirport">+5</span></td>
+    </tr>
+    <tr>
+      <td colspan="2">Do you know the airport well?</td>
+      <td class="gold"><select id="knowAirport"><option>No</option><option>Yes</option></select></td>
+      <td><span id="adjKnow">-5</span></td>
+    </tr>
+    <tr>
+      <td colspan="2">How often do you fly?</td>
+      <td class="gold"><select id="freqFly"><option>Infrequent</option><option>Frequent flier</option></select></td>
+      <td><span id="adjFreq">-5</span></td>
+    </tr>
+    <tr>
+      <td colspan="2">Do you have a connection?</td>
+      <td class="gold"><select id="hasConnection"><option>No</option><option>Yes</option></select></td>
+      <td><span id="adjConn">0</span></td>
+    </tr>
+    <tr>
+      <td colspan="2">Need assistance (kids, grandparents)?</td>
+      <td class="gold"><select id="assist"><option>No</option><option>Yes</option></select></td>
+      <td><span id="adjAssist">0</span></td>
+    </tr>
 
-  <label>Traffic Level:</label>
-  <select id="traffic">
-    <option value="0">Light</option>
-    <option value="10">Medium-heavy</option>
-    <option value="20">Heavy</option>
-  </select>
+    <tr><th colspan="2">International Travel</th><th></th><th></th></tr>
+    <tr>
+      <td colspan="2">Flying internationally?</td>
+      <td class="gold"><select id="intlFly"><option>No</option><option>Yes</option></select></td>
+      <td><span id="adjIntl">0</span></td>
+    </tr>
+    <tr>
+      <td colspan="2">Need to clear customs / immigration before departure?</td>
+      <td class="gold"><select id="intlClear"><option>No</option><option>Yes</option></select></td>
+      <td><span id="adjIntlClear">0</span></td>
+    </tr>
 
-  <label>Departure Airport:</label>
-  <select id="airport">
-    <option value="5">LGA (LaGuardia)</option>
-    <option value="0">Other</option>
-  </select>
+    <tr><th colspan="2">Security & Check‑In</th><th></th><th></th></tr>
+    <tr>
+      <td colspan="2">Expedited security (TSA Pre, CLEAR, priority)?</td>
+      <td class="gold"><select id="expedSec"><option>No</option><option>Yes, one</option><option>Yes, more than one</option></select></td>
+      <td><span id="adjExped">-5</span></td>
+    </tr>
+    <tr>
+      <td colspan="2">Peak travel time (holidays, events)?</td>
+      <td class="gold"><select id="peakTime"><option>No</option><option>Yes</option></select></td>
+      <td><span id="adjPeak">0</span></td>
+    </tr>
+    <tr>
+      <td colspan="2">Severe weather?</td>
+      <td class="gold"><select id="weather"><option>No</option><option>Yes</option></select></td>
+      <td><span id="adjWeather">0</span></td>
+    </tr>
+    <tr>
+      <td colspan="2">Need to visit check‑in counter?</td>
+      <td class="gold"><select id="needCheckin"><option>No</option><option>Yes</option></select></td>
+      <td><span id="adjCheckin">0</span></td>
+    </tr>
+    <tr>
+      <td colspan="2">Checking bags (in coach)?</td>
+      <td class="gold"><select id="checkBags"><option>No</option><option>Yes, and I'm in coach</option><option>Yes, premium</option></select></td>
+      <td><span id="adjBags">+0</span></td>
+    </tr>
+    <tr>
+      <td colspan="2">Carrying items likely to get TSA scrutiny?</td>
+      <td class="gold"><select id="tsaScrutiny"><option>No</option><option>Yes</option></select></td>
+      <td><span id="adjScrutiny">0</span></td>
+    </tr>
 
-  <label>Do you know the airport well?</label>
-  <select id="knowAirport">
-    <option value="-5">Yes</option>
-    <option value="0">No</option>
-  </select>
-
-  <label>Are you a frequent flyer?</label>
-  <select id="frequentFlyer">
-    <option value="-5">Yes</option>
-    <option value="0">No</option>
-  </select>
-
-  <label>Do you need to check bags? (Economy/coach)</label>
-  <select id="checkBags">
-    <option value="20">Yes</option>
-    <option value="0">No</option>
-  </select>
-
-  <label>Do you have TSA Pre, CLEAR, or priority security?</label>
-  <select id="expeditedSecurity">
-    <option value="-5">Yes</option>
-    <option value="0">No</option>
-  </select>
-
-  <label>Are consequences of being late severe?</label>
-  <select id="lateConsequence">
-    <option value="10">Annoying but tolerable</option>
-    <option value="20">Catastrophic</option>
-    <option value="0">Not a big deal</option>
-  </select>
-
-  <label>Number of good flight alternatives?</label>
-  <select id="alternatives">
-    <option value="15">Few, if any</option>
-    <option value="0">Many</option>
-  </select>
-
-  <label>Willing to gamble on delays resolving?</label>
-  <select id="gamble">
-    <option value="-5">Yes</option>
-    <option value="0">No</option>
-  </select>
-
-  <button onclick="calculate()">Calculate When to Leave</button>
-
-  <div class="output" id="result"></div>
-
-  <script>
-    function calculate() {
-      const base = 60;
-      const commute = parseInt(document.getElementById("commuteTime").value);
-      const traffic = parseInt(document.getElementById("traffic").value);
-      const airport = parseInt(document.getElementById("airport").value);
-      const knowAirport = parseInt(document.getElementById("knowAirport").value);
-      const frequentFlyer = parseInt(document.getElementById("frequentFlyer").value);
-      const checkBags = parseInt(document.getElementById("checkBags").value);
-      const expeditedSecurity = parseInt(document.getElementById("expeditedSecurity").value);
-      const lateConsequence = parseInt(document.getElementById("lateConsequence").value);
-      const alternatives = parseInt(document.getElementById("alternatives").value);
-      const gamble = parseInt(document.getElementById("gamble").value);
-
-      const buffer = base + traffic + airport + knowAirport + frequentFlyer +
-                     checkBags + expeditedSecurity + lateConsequence +
-                     alternatives + gamble;
-
-      const totalMinutesBefore = buffer + commute;
-
-      const [hours, minutes] = document.getElementById("flightTime").value.split(":").map(Number);
-      const departure = new Date();
-      departure.setHours(hours, minutes, 0, 0);
-      const leaveBy = new Date(departure.getTime() - totalMinutesBefore * 60000);
-
-      const leaveTime = leaveBy.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-      document.getElementById("result").innerHTML =
-        `<strong>You should leave by:</strong> ${leaveTime} (${totalMinutesBefore} minutes before your flight)`;
-    }
-  </script>
-
-</body>
-</html>
+    <tr><th colspan="2">Cost‑Benefit Assessment</th><th></th><th></th></tr>
+    <tr>
+      <td colspan="2">Consequences if you're significantly late?</td>
+      <td class="gold"><select id="lateCost"><option>Minor inconvenience</option><option>Annoying but tolerable</option><option>Major</option></select></td>
+      <td><span id="adjLateCost">+10</span></td>
+    </tr>
+    <tr>
+      <td colspan="2">Alternatives if you miss your flight?</td>
+      <td class="gold"><select id="altFlights"><option>Many</option><option>Few, if any</option></select></td>
+      <td><span id="adjAlts">+15</span></td>
+    </tr>
+    <tr>
+      <td colspan="2">Willing to gamble on delay recovery (“making up time”)?</td>
+      <td class="gold"><select id="gamble"><option>No</option><option>Yes</option></select></td>
+      <td><span id="
