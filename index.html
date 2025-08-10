@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Airport Departure Time Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 2rem;
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: bold;
+    }
+    select, input {
+      width: 300px;
+      padding: 5px;
+    }
+    .output {
+      margin-top: 20px;
+      padding: 10px;
+      border: 2px solid #ccc;
+      background: #f8f8f8;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 15px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>When Should You Leave for the Airport?</h1>
+
+  <label>Flight Departure Time:</label>
+  <input type="time" id="flightTime" value="10:00">
+
+  <label>Commute time to airport (in minutes):</label>
+  <input type="number" id="commuteTime" value="30">
+
+  <label>Traffic Level:</label>
+  <select id="traffic">
+    <option value="0">Light</option>
+    <option value="10">Medium-heavy</option>
+    <option value="20">Heavy</option>
+  </select>
+
+  <label>Departure Airport:</label>
+  <select id="airport">
+    <option value="5">LGA (LaGuardia)</option>
+    <option value="0">Other</option>
+  </select>
+
+  <label>Do you know the airport well?</label>
+  <select id="knowAirport">
+    <option value="-5">Yes</option>
+    <option value="0">No</option>
+  </select>
+
+  <label>Are you a frequent flyer?</label>
+  <select id="frequentFlyer">
+    <option value="-5">Yes</option>
+    <option value="0">No</option>
+  </select>
+
+  <label>Do you need to check bags? (Economy/coach)</label>
+  <select id="checkBags">
+    <option value="20">Yes</option>
+    <option value="0">No</option>
+  </select>
+
+  <label>Do you have TSA Pre, CLEAR, or priority security?</label>
+  <select id="expeditedSecurity">
+    <option value="-5">Yes</option>
+    <option value="0">No</option>
+  </select>
+
+  <label>Are consequences of being late severe?</label>
+  <select id="lateConsequence">
+    <option value="10">Annoying but tolerable</option>
+    <option value="20">Catastrophic</option>
+    <option value="0">Not a big deal</option>
+  </select>
+
+  <label>Number of good flight alternatives?</label>
+  <select id="alternatives">
+    <option value="15">Few, if any</option>
+    <option value="0">Many</option>
+  </select>
+
+  <label>Willing to gamble on delays resolving?</label>
+  <select id="gamble">
+    <option value="-5">Yes</option>
+    <option value="0">No</option>
+  </select>
+
+  <button onclick="calculate()">Calculate When to Leave</button>
+
+  <div class="output" id="result"></div>
+
+  <script>
+    function calculate() {
+      const base = 60;
+      const commute = parseInt(document.getElementById("commuteTime").value);
+      const traffic = parseInt(document.getElementById("traffic").value);
+      const airport = parseInt(document.getElementById("airport").value);
+      const knowAirport = parseInt(document.getElementById("knowAirport").value);
+      const frequentFlyer = parseInt(document.getElementById("frequentFlyer").value);
+      const checkBags = parseInt(document.getElementById("checkBags").value);
+      const expeditedSecurity = parseInt(document.getElementById("expeditedSecurity").value);
+      const lateConsequence = parseInt(document.getElementById("lateConsequence").value);
+      const alternatives = parseInt(document.getElementById("alternatives").value);
+      const gamble = parseInt(document.getElementById("gamble").value);
+
+      const buffer = base + traffic + airport + knowAirport + frequentFlyer +
+                     checkBags + expeditedSecurity + lateConsequence +
+                     alternatives + gamble;
+
+      const totalMinutesBefore = buffer + commute;
+
+      const [hours, minutes] = document.getElementById("flightTime").value.split(":").map(Number);
+      const departure = new Date();
+      departure.setHours(hours, minutes, 0, 0);
+      const leaveBy = new Date(departure.getTime() - totalMinutesBefore * 60000);
+
+      const leaveTime = leaveBy.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      document.getElementById("result").innerHTML =
+        `<strong>You should leave by:</strong> ${leaveTime} (${totalMinutesBefore} minutes before your flight)`;
+    }
+  </script>
+
+</body>
+</html>
