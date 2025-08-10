@@ -81,3 +81,137 @@
       <td colspan="2">Traveling with kids/elderly?</td>
       <td class="gold"><select id="assist"><option>No</option><option>Yes</option></select></td>
       <td><span id="adjAssist">+0</span></td>
+    </tr>
+    <tr>
+      <td colspan="2">Flying internationally?</td>
+      <td class="gold"><select id="intlFly"><option>No</option><option>Yes</option></select></td>
+      <td><span id="adjIntlFly">+0</span></td>
+    </tr>
+    <tr>
+      <td colspan="2">Need to clear customs?</td>
+      <td class="gold"><select id="intlClear"><option>No</option><option>Yes</option></select></td>
+      <td><span id="adjIntlClear">+0</span></td>
+    </tr>
+    <tr>
+      <td colspan="2">Expedited security?</td>
+      <td class="gold"><select id="expedSec"><option>No</option><option>Yes, one</option><option>Yes, more than one</option></select></td>
+      <td><span id="adjExpedSec">+0</span></td>
+    </tr>
+    <tr>
+      <td colspan="2">Peak travel time?</td>
+      <td class="gold"><select id="peakTime"><option>No</option><option>Yes</option></select></td>
+      <td><span id="adjPeakTime">+0</span></td>
+    </tr>
+    <tr>
+      <td colspan="2">Severe weather?</td>
+      <td class="gold"><select id="weather"><option>No</option><option>Yes</option></select></td>
+      <td><span id="adjWeather">+0</span></td>
+    </tr>
+    <tr>
+      <td colspan="2">Need to visit check-in counter?</td>
+      <td class="gold"><select id="needCheckin"><option>No</option><option>Yes</option></select></td>
+      <td><span id="adjNeedCheckin">+0</span></td>
+    </tr>
+    <tr>
+      <td colspan="2">Checking bags?</td>
+      <td class="gold"><select id="checkBags"><option>No</option><option>Yes, and I'm in coach</option><option>Yes, premium</option></select></td>
+      <td><span id="adjCheckBags">+0</span></td>
+    </tr>
+    <tr>
+      <td colspan="2">Items likely to get TSA scrutiny?</td>
+      <td class="gold"><select id="tsaScrutiny"><option>No</option><option>Yes</option></select></td>
+      <td><span id="adjTsaScrutiny">+0</span></td>
+    </tr>
+    <tr>
+      <td colspan="2">Consequences if you're late?</td>
+      <td class="gold"><select id="lateCost"><option>Minor inconvenience</option><option>Annoying but tolerable</option><option>Major</option></select></td>
+      <td><span id="adjLateCost">+0</span></td>
+    </tr>
+    <tr>
+      <td colspan="2">Alternative flights available?</td>
+      <td class="gold"><select id="altFlights"><option>Many</option><option>Few, if any</option></select></td>
+      <td><span id="adjAltFlights">+0</span></td>
+    </tr>
+    <tr>
+      <td colspan="2">Willing to gamble on delays?</td>
+      <td class="gold"><select id="gamble"><option>No</option><option>Yes</option></select></td>
+      <td><span id="adjGamble">+0</span></td>
+    </tr>
+  </table>
+
+  <div class="result">
+    <p>🧮 <strong>Minimum time arriving at airport (excluding commute):</strong> <span id="minAtDoor">—</span> minutes</p>
+    <p>🕑 <strong>Adding commute, you should leave:</strong> <span id="leaveBefore">—</span> minutes before departure</p>
+    <p>🚗 <strong>Which works out to:</strong> <span id="leaveTime">—</span></p>
+  </div>
+
+  <script>
+    const adjMap = {
+      transitReliability: { "Not taking transit": 0, "On time": -5, "Sometimes delayed": 5, "Often delayed": 10 },
+      trafficLevel: { "Light": 0, "Medium": 5, "Medium‑heavy": 10, "Heavy": 20 },
+      parkReturn: { "No": 0, "Yes": 5 },
+      knowAirport: { "No": 0, "Yes": -5 },
+      freqFly: { "Infrequent": 0, "Frequent flier": -5 },
+      hasConnection: { "No": 0, "Yes": 10 },
+      assist: { "No": 0, "Yes": 10 },
+      intlFly: { "No": 0, "Yes": 15 },
+      intlClear: { "No": 0, "Yes": 10 },
+      expedSec: { "No": 0, "Yes, one": -3, "Yes, more than one": -5 },
+      peakTime: { "No": 0, "Yes": 10 },
+      weather: { "No": 0, "Yes": 15 },
+      needCheckin: { "No": 0, "Yes": 5 },
+      checkBags: { "No": 0, "Yes, and I'm in coach": 20, "Yes, premium": 10 },
+      tsaScrutiny: { "No": 0, "Yes": 5 },
+      lateCost: { "Minor inconvenience": 0, "Annoying but tolerable": 10, "Major": 20 },
+      altFlights: { "Many": 0, "Few, if any": 15 },
+      gamble: { "No": 0, "Yes": -5 }
+    };
+
+    const baseline = 60;
+
+    function getAdjustment(id) {
+      const el = document.getElementById(id);
+      const value = el.value;
+      return adjMap[id]?.[value] || 0;
+    }
+
+    function update() {
+      const commute = parseInt(document.getElementById("commuteTime").value) || 0;
+      document.getElementById("adjCommute").textContent = `+${commute}`;
+
+      let adjustmentTotal = 0;
+      for (const id in adjMap) {
+        const adj = getAdjustment(id);
+        adjustmentTotal += adj;
+        const spanId = "adj" + id.charAt(0).toUpperCase() + id.slice(1);
+        const span = document.getElementById(spanId);
+        if (span) span.textContent = (adj >= 0 ? "+" : "") + adj;
+      }
+
+      const minAtDoor = baseline + adjustmentTotal;
+      const leaveBefore = minAtDoor + commute;
+
+      document.getElementById("minAtDoor").textContent = minAtDoor;
+      document.getElementById("leaveBefore").textContent = leaveBefore;
+
+      const flightTime = document.getElementById("flightTime").value;
+      if (flightTime) {
+        const [h, m] = flightTime.split(":").map(Number);
+        const d = new Date();
+        d.setHours(h);
+        d.setMinutes(m - leaveBefore);
+        const leaveStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        document.getElementById("leaveTime").textContent = leaveStr;
+      } else {
+        document.getElementById("leaveTime").textContent = "—";
+      }
+    }
+
+    document.querySelectorAll("select, input").forEach(el => {
+      el.addEventListener("input", update);
+    });
+
+    update();
+  </script>
+</body>
+</html>
